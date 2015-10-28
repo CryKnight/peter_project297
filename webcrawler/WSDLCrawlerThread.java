@@ -17,12 +17,30 @@ public class WSDLCrawlerThread extends ControllableThread {
             // Anyway, we should try to identify WSDL pages by the definitions-
             // tag rather than by content-type.
             if (!mimetype.startsWith("text")) return;
-			String rawPage = SaveURL.getURL(pageURL);
+            String rawPage = SaveURL.getURL(pageURL);
             // I don't know if it is legal, but we also want to identify the
             // file as WSDL if the definitions-tag is not spelled in small
             // letters.
             String smallPage = rawPage.toLowerCase().replaceAll("\\s", " ");
-			if (smallPage.indexOf("<definitions") != -1) {
+            
+            String urlAddress = pageURL.toURI().toString();
+            String number=String.valueOf(tc.getUniqueNumber());
+            String filename=((URLQueue) queue).getFilenamePrefix()+"/"+number+".txt";
+            
+            Vector links = SaveURL.extrackLinksAndParseHTML(rawPage, smallPage, filename, urlAddress);
+	// Convert each link text to a url and enque
+            for (int n = 0; n < links.size(); n++) {
+                    try {
+                            // urls might be relative to current page
+                            URL link = new URL(pageURL,(String) links.elementAt(n));
+                            queue.push(link, level + 1);
+                    } catch (MalformedURLException e) {
+                            // Ignore malformed URLs, the link extractor might
+                            // have failed.
+                    }
+            }
+            /*
+            if (smallPage.indexOf("<definitions") != -1) {
 				// assume that it's a wsdl
 				String filename = pageURL.getPath();
                 // add a unique number as filename prefix
@@ -51,8 +69,7 @@ public class WSDLCrawlerThread extends ControllableThread {
 				for (int n = 0; n < links.size(); n++) {
 					try {
 						// urls might be relative to current page
-						URL link = new URL(pageURL,
-										   (String) links.elementAt(n));
+						URL link = new URL(pageURL,(String) links.elementAt(n));
 						queue.push(link, level + 1);
 					} catch (MalformedURLException e) {
 						// Ignore malformed URLs, the link extractor might
@@ -60,6 +77,7 @@ public class WSDLCrawlerThread extends ControllableThread {
 					}
 				}
 			}
+            */
 		} catch (Exception e) {
 			// e.printStackTrace();
 			// process of this object has failed, but we just ignore it here

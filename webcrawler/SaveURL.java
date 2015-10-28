@@ -3,6 +3,10 @@ package ie.moguntia.webcrawler;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Class with static methods that can save URLs and extract links
@@ -86,7 +90,7 @@ public class SaveURL
      * In order to avoid the possible double conversion from mixed to lower case
      * a second method is provided, where the conversion is done externally.
      */
-    public static Vector extractLinks(String rawPage, String page) {
+    public static Vector extractLinks(String rawPage, String page)  {
 		int index = 0;
 		Vector links = new Vector();
 		while ((index = page.indexOf("<a ", index)) != -1)
@@ -98,9 +102,39 @@ public class SaveURL
 		    String strLink = st.nextToken();
 			if (! links.contains(strLink)) links.add(strLink);
 		}
+                
+                
+                
 		return links;
-    }
-
+        }
+    
+        public static Vector extrackLinksAndParseHTML(String rawPage, String page, String name, String urlAddress) throws FileNotFoundException {
+		int index = 0;
+		Vector links = new Vector();
+		while ((index = page.indexOf("<a ", index)) != -1)
+		{
+		    if ((index = page.indexOf("href", index)) == -1) break;
+		    if ((index = page.indexOf("=", index)) == -1) break;
+		    String remaining = rawPage.substring(++index);
+		    StringTokenizer st = new StringTokenizer(remaining, "\t\n\r\"'>#");
+		    String strLink = st.nextToken();
+			if (! links.contains(strLink)) links.add(strLink);
+		}
+                Document data= Jsoup.parse(rawPage);
+                Elements values= data.select("title, p, span, h1, h2, h3, h4, h5, h6");
+                PrintWriter out = new PrintWriter(name);
+                out.append(urlAddress);
+                out.println();
+                for (Element e: values) {
+                    if (e.hasText()) {
+                        out.println(e.text());
+                    }
+                }
+                out.close();
+                
+                
+		return links;
+        }
 
 	/**
 	 * Extract links (key) with link text (value)
@@ -127,17 +161,21 @@ public class SaveURL
 			strText = strText.replaceAll("\\s+", " ");
 			links.put(strLink, strText);
 		}
+                
 		return links;
 		
 	}
-    
+        
+        
+        
+        
     /**
 	 * Extract links from a html page given as a String
 	 * The return value is a vector of strings. This method does neither check
 	 * the validity of its results nor does it care about html comments, so
 	 * links that are commented out are also retrieved.
 	 */
-	public static Vector extractLinks(String rawPage) {
+	public static Vector extractLinks(String rawPage) throws FileNotFoundException {
         return extractLinks(rawPage, rawPage.toLowerCase().replaceAll("\\s", " "));
 	}
 

@@ -33,7 +33,15 @@ public class TestJsoup {
     }*/
     String html="http://www.sjsu.edu/";
     Document doc = Jsoup.connect(html).get();
-      System.out.println(doc.select("title, h1, h2, h3, h4, h5, span, p").text());
+    Elements data=doc.select("title, p, h1");
+    for(Element e : data){
+        if(e.hasText()){
+            System.out.println(e.text());
+        }
+        //System.out.println();
+    }
+    System.out.println(doc.select("title"));//text());//select("title, h1, h2, h3, h4, h5, span, p").text());
+    
     //doc.select("title");
     //Elements data=
     /*
@@ -45,7 +53,7 @@ public class TestJsoup {
 
   public final static void main(String[] args) throws Exception{
     FileReader reader = new FileReader
-          ("San Jose State University - Powering Silicon Valley _ San Jose State University.html");
+          ("San Jose State University -  Valley _ San Jose State University.html");
     TestJsoup.extractText(reader);
   }
 }

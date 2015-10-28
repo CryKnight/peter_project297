@@ -1,5 +1,7 @@
 package ie.moguntia.webcrawler;
 import ie.moguntia.threads.*;
+import java.io.File;
+import java.io.PrintWriter;
 import java.net.*;
 
 public class WSDLCrawler implements MessageReceiver {
@@ -37,6 +39,14 @@ public class WSDLCrawler implements MessageReceiver {
 				maxLevel = Integer.parseInt(args[2]);
 			}
 			if (args.length >= 2) {
+                                File filename=new File(args[1]);
+                                filename.mkdirs();
+                                //filename=new File("test1.txt");
+                                /*
+                                PrintWriter out = new PrintWriter(args[1]+"/test1.txt");
+                                out.println("I love you");
+                                out.close();
+                                        */
 				URLQueue q = new URLQueue();
 				q.setFilenamePrefix(args[1]);
 				q.push(new URL(args[0]), 0);
